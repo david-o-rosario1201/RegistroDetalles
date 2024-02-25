@@ -96,10 +96,10 @@
 								<td>@tickets.TicketId</td>
 								<td>@tickets.Fecha.ToShortDateString()</td>
 								<td>@tickets.SolicitadoPor</td>
-								<td>@tickets.ClienteId</td>
-								<td>@tickets.SistemaId</td>
+								<td>@tickets.Cliente</td>
+								<td>@tickets.Sistema</td>
 								<td>@tickets.Descripcion</td>
-								<td>@tickets.PrioridadId</td>
+								<td>@tickets.Prioridad</td>
 								<td>@tickets.Asunto</td>
 								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(tickets.TicketId)"><i class="bi bi-eye" /></button></td>
 								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(tickets.TicketId)"><i class="bi bi-pencil-square" /></button></td>

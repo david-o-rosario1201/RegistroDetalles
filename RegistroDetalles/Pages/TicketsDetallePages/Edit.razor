@@ -1,0 +1,75 @@
+﻿@page "/EditTicketsDetalle"
+@page "/EditTicketsDetalle/ticketDetalleId={ticketDetalleId:int}"
+@inject NavigationManager navigation
+
+<PageTitle>Editar TicketsDetalle</PageTitle>
+<EditForm Model="ticketsDetalle" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3>Editar TicketsDetalle</h3>
+			</div>
+			@*Body*@
+			<div class="card-body">
+				@*Id*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="id"><strong>Id</strong></label>
+						<InputNumber id="id" class="form-control" @bind-Value="ticketsDetalle.Id"></InputNumber>
+					</div>
+				</div>
+				@*TicketId*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="ticketid"><strong>Ticket Id:</strong></label>
+						<InputNumber id="ticketid" class="form-control" @bind-Value="ticketsDetalle.TicketId"></InputNumber>
+						<ValidationMessage For="@(()=> ticketsDetalle.TicketId)"></ValidationMessage>
+					</div>
+				</div>
+				@*Emisor*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="emisor"><strong>Emisor:</strong></label>
+						<InputText id="emisor" class="form-control" @bind-Value="ticketsDetalle.Emisor" placeholder="Ingrese su nombre"></InputText>
+						<ValidationMessage For="@(()=> ticketsDetalle.Emisor)"></ValidationMessage>
+					</div>
+				</div>
+				@*Mensaje*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="mensaje"><strong>Mensaje:</strong></label>
+						<InputTextArea id="mensaje" class="form-control" @bind-Value="ticketsDetalle.Mensaje" placeholder="Ingrese un mensaje"></InputTextArea>
+						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
+					</div>
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success">
+					<i class="bi bi-floppy-fill" /> Crear
+				</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	[Parameter]
+	public int ticketDetalleId { get; set; }
+	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
+
+	public async Task Modificar()
+	{
+
+	}
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/TicketsDetalle");
+	}
+}

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistroDetalles", "RegistroDetalles.csproj", "{F354DFE6-1C4C-42E1-B5CB-2FA5C3C45A51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegistroDetalles", "RegistroDetalles.csproj", "{F354DFE6-1C4C-42E1-B5CB-2FA5C3C45A51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistroDetalles.Api", "..\RegistroDetalles.Api\RegistroDetalles.Api.csproj", "{86F28429-9D14-4E15-AD77-BEA75FB691E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegistroDetalles.Api", "..\RegistroDetalles.Api\RegistroDetalles.Api.csproj", "{86F28429-9D14-4E15-AD77-BEA75FB691E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "..\Library\Library.csproj", "{D7CD7CF0-C02B-460A-8532-FA1B34C8C2E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library", "..\Library\Library.csproj", "{D7CD7CF0-C02B-460A-8532-FA1B34C8C2E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

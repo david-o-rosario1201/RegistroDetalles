@@ -1,0 +1,49 @@
+﻿@page "/DetailsTicketsDetalle"
+@page "/DetailsTicketsDetalle/ticketDetalleId={ticketDetalleId:int}"
+@inject NavigationManager navigation
+
+<PageTitle>Detalle de TicketsDetalle</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3>Detalle de TicketsDetalle</h3>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@*Datos*@
+			<div class="mb-1">
+				<p class="mb-0">Id: @ticketsDetalle.Id</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">TicketId: @ticketsDetalle.TicketId</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Emisor: @ticketsDetalle.Emisor</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Mensaje: @ticketsDetalle.Mensaje</p>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int ticketDetalleId { get; set; }
+	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+	}
+
+	public void Volver()
+	{
+		navigation.NavigateTo("/TicketsDetalle");
+	}
+}
