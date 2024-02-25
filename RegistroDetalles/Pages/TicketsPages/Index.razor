@@ -1,0 +1,241 @@
+﻿@page "/Tickets"
+@* @attribute [StreamRendering]
+@rendermode InteractiveServer *@
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Tickets</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Tickets</strong></h3>
+			<div class="d-flex align-items-start">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button>
+				</div>
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info" role="status">
+						<span class="visually-hidden">Cargando...</span>
+					</div>
+				</div>
+			}
+			else if (ticketsList.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay tickets creados</h1>
+			}
+			else
+			{
+
+				@*Fechas*@
+				<div class="mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div>
+
+				@*Campos a Filtrar*@
+				<div class="mb-3">
+					<div class="row align-items-center">
+						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+						<div class="col-3">
+							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+								<option>Elije una opci&oacute;n</option>
+								<option value="id">Id</option>
+								<option value="solicitado por">Solicitado Por</option>
+								<option value="asunto">Asunto</option>
+							</InputSelect>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>→</p>
+						</div>
+						<div class="col-4">
+							<div class="input-group">
+								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					</div>
+				</div>
+
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th>TicketId</th>
+							<th>Fecha</th>
+							<th>SolicitadoPor</th>
+							<th>ClienteId</th>
+							<th>SistemaId</th>
+							<th>Descripci&oacute;n</th>
+							<th>PrioridadId</th>
+							<th>Asunto</th>
+							<th>Ver</th>
+							<th>Editar</th>
+							<th>Eliminar</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var tickets in ticketsList)
+						{
+							<tr>
+								<td>@tickets.TicketId</td>
+								<td>@tickets.Fecha.ToShortDateString()</td>
+								<td>@tickets.SolicitadoPor</td>
+								<td>@tickets.ClienteId</td>
+								<td>@tickets.SistemaId</td>
+								<td>@tickets.Descripcion</td>
+								<td>@tickets.PrioridadId</td>
+								<td>@tickets.Asunto</td>
+								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(tickets.TicketId)"><i class="bi bi-eye" /></button></td>
+								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(tickets.TicketId)"><i class="bi bi-pencil-square" /></button></td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(tickets.TicketId)"><i class="bi bi-trash3-fill" /></button></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="mb-3"></div>
+		<div class="card-footer">
+			<p><strong>Total de Tickets:</strong> @ticketsList.Count</p>
+		</div>
+	</div>
+	<div class="card-footer d-flex justify-content-center"></div>
+</div>
+@mensaje
+
+@code {
+	public List<Tickets> ticketsList = new List<Tickets>();
+	public Tickets ticket { get; set; } = new Tickets();
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		// Expression<Func<Tickets, bool>> criterio = ticket => ticket.ClienteId > 0;
+
+		// ticketsList = await ticketsService.Listar(criterio);
+
+		loading = false;
+
+		if (ticketsList.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		// if (desde > hasta)
+		// {
+		// 	mensaje = "La fecha inicial no puede ser mayor a la fecha final";
+		// 	await Task.Delay(3000);
+		// 	return;
+		// }
+
+		// if (valorFiltro == null)
+		// {
+		// 	mensaje = "Debe ingresar un dato";
+		// 	await Task.Delay(3000);
+		// 	return;
+		// }
+
+		// if (filtro == null)
+		// {
+		// 	mensaje = "Debe elegir un método parar filtrar";
+		// 	await Task.Delay(3000);
+		// 	return;
+		// }
+
+		// List<Tickets> filtradoList1 = new List<Tickets>();
+
+		// switch (filtro)
+		// {
+		// 	case "id":
+		// 		if (int.TryParse(valorFiltro, out int id))
+		// 		{
+		// 			filtradoList1 = await ticketsService.Listar(s => s.TicketId == id);
+		// 			DatosFiltrados(filtradoList1);
+		// 		}
+		// 		else
+		// 		{
+		// 			mensaje = "El valor ingresado para TicketId no es válido";
+		// 			await Task.Delay(3000);
+		// 		}
+		// 		break;
+
+		// 	case "solicitado por":
+		// 		filtradoList1 = await ticketsService.Listar(a => a.SolicitadoPor.ToLower().Contains(valorFiltro.ToLower()));
+		// 		DatosFiltrados(filtradoList1);
+		// 		break;
+
+		// 	case "asunto":
+		// 		filtradoList1 = await ticketsService.Listar(a => a.Asunto.ToLower().Contains(valorFiltro.ToLower()));
+		// 		DatosFiltrados(filtradoList1);
+		// 		break;
+		// }
+	}
+
+	public async Task Restablecer()
+	{
+		// ticketsList = await ticketsService.Listar(a => a.SistemaId > 0);
+		// mensaje = "Lo datos fueron restablecidos";
+	}
+
+	public async Task DatosFiltrados(List<Tickets> valor)
+	{
+		List<Tickets> filtradoList2 = new List<Tickets>();
+		foreach (var filtrado in valor)
+		{
+			if (filtrado.Fecha >= desde && filtrado.Fecha <= hasta)
+				filtradoList2.Add(filtrado);
+		}
+
+		if (filtradoList2.Count != 0)
+		{
+			ticketsList = valor;
+			mensaje = "Se encontraron resultados";
+		}
+		else
+		{
+			mensaje = "No se encontraron resultados";
+			await Task.Delay(3000);
+		}
+	}
+
+	void IrACrear()
+	{
+		NavigationManager.NavigateTo("/CreateTickets");
+	}
+
+	void IrADetalles(int id)
+	{
+		NavigationManager.NavigateTo($"/DetailsTickets/ticketId={id}");
+	}
+	void IrAEditar(int id)
+	{
+		NavigationManager.NavigateTo($"/EditTickets/ticketId={id}");
+	}
+	void IrAEliminar(int id)
+	{
+		NavigationManager.NavigateTo($"/DeleteTickets/ticketId={id}");
+	}
+}

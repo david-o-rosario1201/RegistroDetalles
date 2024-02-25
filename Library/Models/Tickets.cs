@@ -17,17 +17,14 @@ public class Tickets
 	[DataType(DataType.Date)]
 	public DateTime Fecha { get; set; } = DateTime.Today;
 
-	[ForeignKey("Clientes")]
 	[Required(ErrorMessage = "Error, debe llenar este campo")]
-	public int ClienteId { get; set; }
+	public string Cliente { get; set; }
 
-	[ForeignKey("Sistemas")]
 	[Required(ErrorMessage = "Error, debe llenar este campo")]
-	public int SistemaId { get; set; }
+	public string Sistema { get; set; }
 
-	[ForeignKey("Priorities")]
 	[Required(ErrorMessage = "Error, debe llenar este campo")]
-	public int PriorityId { get; set; }
+	public string Prioridad { get; set; }
 
 	[Required(ErrorMessage = "Error, debe llenar este campo")]
 	public string SolicitadoPor { get; set; }
@@ -37,4 +34,9 @@ public class Tickets
 
 	[Required(ErrorMessage = "Error, debe llenar este campo")]
 	public string Descripcion { get; set; }
+
+
+
+	[ForeignKey("Tickets")]
+	public ICollection<TicketsDetalles> TicketsDetalle { get; set; } = new List<TicketsDetalles>();
 }

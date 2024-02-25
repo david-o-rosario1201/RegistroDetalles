@@ -1,0 +1,66 @@
+﻿@page "/DetailsTickets"
+@page "/DetailsTickets/ticketId={ticketId:int}"
+@* @attribute [StreamRendering]
+@rendermode InteractiveServer *@
+@inject NavigationManager NavigationManager
+
+<PageTitle>Detalle de Ticket</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalle de Ticket</strong></h3>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@*Datos*@
+			<div class="mb-1">
+				<p class="mb-0">TicketId: @ticket.TicketId</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Fecha: @ticket.Fecha</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">SolicitadoPor: @ticket.SolicitadoPor</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Cliente: @ticket.Cliente</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Sistema: @ticket.Sistema</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Descripci&oacute;n: @ticket.Descripcion</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Prioridad: @ticket.Prioridad</p>
+			</div>
+			<div class="mb-1">
+				<p class="mb-0">Asunto: @ticket.Asunto</p>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<button type="button" class="btn btn-outline-primary" @onclick="VolverAInicio"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int ticketId { get; set; }
+	public Tickets ticket { get; set; } = new Tickets();
+	public List<Tickets> ticketsList = new List<Tickets>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		// if (ticketId > 0)
+		// 	ticket = await ticketsService.BuscarId(ticketId);
+	}
+
+	void VolverAInicio()
+	{
+		NavigationManager.NavigateTo("/Tickets");
+	}
+}

@@ -1,0 +1,141 @@
+﻿@page "/CreateTickets"
+@* @rendermode InteractiveServer
+@attribute [StreamRendering] *@
+@inject NavigationManager NavigationManager
+
+<PageTitle>Crear Nuevo Ticket</PageTitle>
+<EditForm Model="ticket" OnValidSubmit="Crear">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3><strong>Crear Nuevo Ticket</strong></h3>
+			</div>
+			@*Cuerpo*@
+			<div class="card-body">
+				<div class="mb-3">
+					<div class="col-4">
+						@*Ticket ID*@
+						<label class="form-label" for="ticketId"><strong>TicketId:</strong></label>
+						<InputNumber id="ticketId" class="form-control" @bind-Value="ticket.TicketId" readonly></InputNumber>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Fecha*@
+						<label class="form-label" for="fecha"><strong>Fecha:</strong></label>
+						<InputDate id="fecha" class="form-control" @bind-Value="ticket.Fecha"></InputDate>
+						<ValidationMessage For="@(() => ticket.Fecha)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Asunto*@
+						<label class="form-label" for="asunto"><strong>Asunto:</strong></label>
+						<InputText id="asunto" class="form-control" @bind-Value="ticket.Asunto" placeholder="Ingrese un asunto"></InputText>
+						<ValidationMessage For="@(() => ticket.Asunto)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Solicitado Por*@
+						<label class="form-label" for="solicitado"><strong>SolicitadoPor:</strong></label>
+						<InputText id="solicitado" class="form-control" @bind-Value="ticket.SolicitadoPor" placeholder="Ingrese el nombre de quien solicita el ticket"></InputText>
+						<ValidationMessage For="@(() => ticket.SolicitadoPor)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Cliente ID*@
+						<label class="form-label" for="clienteid"><strong>Cliente:</strong></label>
+						<InputText id="cliente" class="form-control" @bind-Value="ticket.Cliente"></InputText>
+						<ValidationMessage For="@(() => ticket.Cliente)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Sistema ID*@
+						<label class="form-label" for="sistemaid"><strong>SistemaId:</strong></label>
+						<InputText id="sistemaid" class="form-control" @bind-Value="ticket.Sistema"></InputText>
+						<ValidationMessage For="@(() => ticket.Sistema)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Prioridad ID*@
+						<label class="form-label" for="prioridadid"><strong>PrioridadId:</strong></label>
+						<InputText id="prioridadid" class="form-control" @bind-Value="ticket.Prioridad"></InputText>
+						<ValidationMessage For="@(() => ticket.Prioridad)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="col-4">
+						@*Descripción*@
+						<label class="form-label" for="descripcion"><strong>Descripci&oacute;n:</strong></label>
+						<InputTextArea id="descripcion" class="form-control" @bind-Value="ticket.Descripcion" placeholder="Ingrese una descripción"></InputTextArea>
+						<ValidationMessage For="@(() => ticket.Descripcion)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="mb-3"></div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="VolverAInicio"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success">
+					<i class="bi bi-floppy-fill" /> Crear
+				</button>
+			</div>
+		</div>
+	</div>
+	@*Mensaje*@
+	@mensaje
+</EditForm>
+
+@code {
+	public Tickets ticket { get; set; } = new Tickets();
+	public string mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+	}
+
+	public async Task Crear()
+	{
+		
+	}
+
+	public void LimpiarPantalla()
+	{
+		ticket = new Tickets();
+		mensaje = string.Empty;
+	}
+
+	public async Task ActualizarClienteId(string valor)
+	{
+		// if (valor != null)
+		// {
+		// 	var buscar = await clientesService.BuscarCliente(valor);//Busco el cliente
+		// 	if (buscar != null)
+		// 		ticket.ClienteId = buscar.ClienteId;
+		// }
+	}
+
+	public async Task ActualizarPrioridadId(string valor)
+	{
+		// if (valor != null)
+		// {
+		// 	var buscar = await prioridadesService.BuscarDescripcion(valor);//Busco la descripcion
+		// 	if (buscar != null)
+		// 		ticket.PriorityId = buscar.PriorityId;
+		// }
+	}
+
+	void VolverAInicio()
+	{
+		NavigationManager.NavigateTo("/Tickets");
+	}
+}
