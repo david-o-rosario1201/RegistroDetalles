@@ -189,13 +189,13 @@
 				break;
 
 			case "solicitado por":
-				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets?valorFiltro={valorFiltro}");
-				DatosFiltrados(filtradoList1);
+				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+				Filtrar(2, filtradoList1, valorFiltro);
 				break;
 
 			case "asunto":
-				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets?valorFiltro={valorFiltro}");
-				DatosFiltrados(filtradoList1);
+				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+				Filtrar(2, filtradoList1, valorFiltro);
 				break;
 		}
 	}
@@ -204,6 +204,30 @@
 	{
 		// ticketsList = await ticketsService.Listar(a => a.SistemaId > 0);
 		// mensaje = "Lo datos fueron restablecidos";
+	}
+
+	public async Task Filtrar(int num, List<Tickets> valor, string dato)
+	{
+		List<Tickets> filtradoList2 = new List<Tickets>();
+		if(num == 1)
+		{
+			foreach (var filtrado in valor)
+			{
+				if (filtrado.SolicitadoPor == dato)
+					filtradoList2.Add(filtrado);
+			}
+		}
+		else
+		{
+			foreach (var filtrado in valor)
+			{
+				if (filtrado.Asunto == dato)
+					filtradoList2.Add(filtrado);
+			}
+		}
+
+		if(filtradoList2.Count != 0)
+			DatosFiltrados(filtradoList2);
 	}
 
 	public async Task DatosFiltrados(List<Tickets> valor)
