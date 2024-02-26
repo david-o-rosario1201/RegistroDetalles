@@ -2,6 +2,7 @@
 @page "/EditTickets/ticketId={ticketId:int}"
 @* @rendermode InteractiveServer
 @attribute [StreamRendering] *@
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Editar Ticket</PageTitle>
@@ -106,21 +107,21 @@
 	{
 		await Task.Delay(500);
 
-		// if (ticketId > 0)
-		// 	ticket = await ticketsService.BuscarId(ticketId);
+		if (ticketId > 0)
+		{
+			ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
+		}
 	}
 
 	public async Task Modificar()
 	{
-		// var crear = await ticketsService.Crear(ticket);
-		// if (crear)
-		// {
-		// 	mensaje = "El ticket se ha creado con exito";
-		// 	await Task.Delay(2000);
-		// 	IrAPaginaDestino();
-		// }
-		// else
-		// 	mensaje = "No se pudo crear el ticket correctamente";
+		var response = await httpClient.PutAsJsonAsync($"api/Tickets/{ticket.TicketId}", ticket);
+		if (response.IsSuccessStatusCode)
+		{
+			mensaje = "El ticket se modificó con éxito";
+		}
+		else
+			mensaje = "El ticket no se pudo modificar con éxito";
 	}
 
 	void IrAPaginaDestino()
