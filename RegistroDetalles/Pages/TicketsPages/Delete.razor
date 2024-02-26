@@ -68,15 +68,20 @@
 
 	public async Task Eliminar()
 	{
-		var response = await httpClient.DeleteAsync($"api/Tickets/{ticketId}");
+		var response = await httpClient.DeleteAsync($"api/Tickets/{ticket.TicketId}");
 
-		if(response.IsSuccessStatusCode)
+		if (response.IsSuccessStatusCode)
 		{
 			mensaje = "El ticket se eliminó con éxito";
+			await Task.Delay(2000);
+			IrAPaginaDestino();
 		}
 		else
+		{
 			mensaje = "El ticket no se pudo eliminar con éxito";
+		}
 	}
+
 
 	void IrAPaginaDestino()
 	{
