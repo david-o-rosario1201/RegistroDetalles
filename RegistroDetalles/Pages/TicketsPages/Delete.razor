@@ -1,6 +1,7 @@
 ﻿@page "/DeleteTickets"
 @page "/DeleteTickets/ticketId={ticketId:int}"
 @* @rendermode InteractiveServer *@
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Eliminar Ticket</PageTitle>
@@ -45,10 +46,10 @@
 			</div>
 			<button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="bi bi-trash3-fill" /> Eliminar</button>
 		</div>
-		@*Mensaje*@
-		@mensaje
 	</div>
 </div>
+@*Mensaje*@
+@mensaje
 
 @code {
 	[Parameter]
@@ -59,21 +60,22 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		// if (ticketId > 0)
-		// 	ticket = await ticketsService.BuscarId(ticketId);
+		if (ticketId > 0)
+		{
+			ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
+		}
 	}
 
 	public async Task Eliminar()
 	{
-		// var eliminar = await ticketsService.Eliminar(ticket);
-		// if (eliminar)
-		// {
-		// 	mensaje = "El ticket se ha eliminado con exito";
-		// 	await Task.Delay(2000);
-		// 	IrAPaginaDestino();
-		// }
-		// else
-		// 	mensaje = "No se ha podido eliminar el ticket correctamente";
+		var response = await httpClient.DeleteAsync($"api/Tickets/{ticketId}");
+
+		if(response.IsSuccessStatusCode)
+		{
+			mensaje = "El ticket se eliminó con éxito";
+		}
+		else
+			mensaje = "El ticket no se pudo eliminar con éxito";
 	}
 
 	void IrAPaginaDestino()
