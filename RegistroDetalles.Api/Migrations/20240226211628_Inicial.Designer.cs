@@ -11,7 +11,7 @@ using RegistroDetalles.Api.DAL;
 namespace RegistroDetalles.Api.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240226203359_Inicial")]
+    [Migration("20240226211628_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
