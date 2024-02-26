@@ -37,6 +37,6 @@ public class Tickets
 
 
 
-	[ForeignKey("Tickets")]
+	[ForeignKey("TicketId")]
 	public ICollection<TicketsDetalles> TicketsDetalle { get; set; } = new List<TicketsDetalles>();
 }
