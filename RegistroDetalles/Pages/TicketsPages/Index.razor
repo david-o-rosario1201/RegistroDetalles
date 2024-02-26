@@ -1,6 +1,7 @@
 ﻿@page "/Tickets"
 @* @attribute [StreamRendering]
 @rendermode InteractiveServer *@
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager;
 
 <PageTitle>Tickets</PageTitle>
@@ -79,10 +80,10 @@
 							<th>TicketId</th>
 							<th>Fecha</th>
 							<th>SolicitadoPor</th>
-							<th>ClienteId</th>
-							<th>SistemaId</th>
+							<th>Cliente</th>
+							<th>Sistema</th>
 							<th>Descripci&oacute;n</th>
-							<th>PrioridadId</th>
+							<th>Prioridad</th>
 							<th>Asunto</th>
 							<th>Ver</th>
 							<th>Editar</th>
@@ -132,9 +133,8 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		// Expression<Func<Tickets, bool>> criterio = ticket => ticket.ClienteId > 0;
 
-		// ticketsList = await ticketsService.Listar(criterio);
+		ticketsList = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
 
 		loading = false;
 
