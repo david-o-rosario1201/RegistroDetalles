@@ -74,7 +74,7 @@
 					</div>
 				</div>
 
-				<table class="table table-bordered">
+				<table class="table table-bordered miTabla">
 					<thead>
 						<tr>
 							<th>TicketId</th>
@@ -144,54 +144,60 @@
 
 	public async Task Buscar()
 	{
-		// if (desde > hasta)
-		// {
-		// 	mensaje = "La fecha inicial no puede ser mayor a la fecha final";
-		// 	await Task.Delay(3000);
-		// 	return;
-		// }
+		if (desde > hasta)
+		{
+			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
+			await Task.Delay(3000);
+			return;
+		}
 
-		// if (valorFiltro == null)
-		// {
-		// 	mensaje = "Debe ingresar un dato";
-		// 	await Task.Delay(3000);
-		// 	return;
-		// }
+		if (valorFiltro == null)
+		{
+			mensaje = "Debe ingresar un dato";
+			await Task.Delay(3000);
+			return;
+		}
 
-		// if (filtro == null)
-		// {
-		// 	mensaje = "Debe elegir un método parar filtrar";
-		// 	await Task.Delay(3000);
-		// 	return;
-		// }
+		if (filtro == null)
+		{
+			mensaje = "Debe elegir un método parar filtrar";
+			await Task.Delay(3000);
+			return;
+		}
 
-		// List<Tickets> filtradoList1 = new List<Tickets>();
+		List<Tickets> filtradoList1 = new List<Tickets>();
 
-		// switch (filtro)
-		// {
-		// 	case "id":
-		// 		if (int.TryParse(valorFiltro, out int id))
-		// 		{
-		// 			filtradoList1 = await ticketsService.Listar(s => s.TicketId == id);
-		// 			DatosFiltrados(filtradoList1);
-		// 		}
-		// 		else
-		// 		{
-		// 			mensaje = "El valor ingresado para TicketId no es válido";
-		// 			await Task.Delay(3000);
-		// 		}
-		// 		break;
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var valor = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
+					if (valor != null)
+					{
+						ticket = valor;
+						mensaje = "Se encontraron los resultados";
+					}
+					else
+						mensaje = "No se encontraron los resultados";
+				}
+				else
+				{
+					mensaje = "El valor ingresado para TicketId no es válido";
+					await Task.Delay(3000);
+				}
+				break;
 
-		// 	case "solicitado por":
-		// 		filtradoList1 = await ticketsService.Listar(a => a.SolicitadoPor.ToLower().Contains(valorFiltro.ToLower()));
-		// 		DatosFiltrados(filtradoList1);
-		// 		break;
+			case "solicitado por":
+				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets?valorFiltro={valorFiltro}");
+				DatosFiltrados(filtradoList1);
+				break;
 
-		// 	case "asunto":
-		// 		filtradoList1 = await ticketsService.Listar(a => a.Asunto.ToLower().Contains(valorFiltro.ToLower()));
-		// 		DatosFiltrados(filtradoList1);
-		// 		break;
-		// }
+			case "asunto":
+				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets?valorFiltro={valorFiltro}");
+				DatosFiltrados(filtradoList1);
+				break;
+		}
 	}
 
 	public async Task Restablecer()
@@ -211,7 +217,7 @@
 
 		if (filtradoList2.Count != 0)
 		{
-			ticketsList = valor;
+			ticketsList = filtradoList2;
 			mensaje = "Se encontraron resultados";
 		}
 		else
