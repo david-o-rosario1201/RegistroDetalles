@@ -2,6 +2,7 @@
 @page "/DetailsTickets/ticketId={ticketId:int}"
 @* @attribute [StreamRendering]
 @rendermode InteractiveServer *@
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Detalle de Ticket</PageTitle>
@@ -55,8 +56,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		// if (ticketId > 0)
-		// 	ticket = await ticketsService.BuscarId(ticketId);
+		if (ticketId > 0)
+		{
+			ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
+		}
 	}
 
 	void VolverAInicio()
