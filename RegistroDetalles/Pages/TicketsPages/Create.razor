@@ -48,25 +48,25 @@
 				</div>
 				<div class="mb-3">
 					<div class="col-4">
-						@*Cliente ID*@
+						@*Cliente*@
 						<label class="form-label" for="clienteid"><strong>Cliente:</strong></label>
-						<InputText id="cliente" class="form-control" @bind-Value="ticket.Cliente"></InputText>
+						<InputText id="cliente" class="form-control" @bind-Value="ticket.Cliente" placeholder="Ingrese el nombre del cliente"></InputText>
 						<ValidationMessage For="@(() => ticket.Cliente)"></ValidationMessage>
 					</div>
 				</div>
 				<div class="mb-3">
 					<div class="col-4">
-						@*Sistema ID*@
-						<label class="form-label" for="sistemaid"><strong>SistemaId:</strong></label>
-						<InputText id="sistemaid" class="form-control" @bind-Value="ticket.Sistema"></InputText>
+						@*Sistema*@
+						<label class="form-label" for="sistemaid"><strong>Sistema:</strong></label>
+						<InputText id="sistemaid" class="form-control" @bind-Value="ticket.Sistema" placeholder="Ingrese el nombre del sistema"></InputText>
 						<ValidationMessage For="@(() => ticket.Sistema)"></ValidationMessage>
 					</div>
 				</div>
 				<div class="mb-3">
 					<div class="col-4">
-						@*Prioridad ID*@
-						<label class="form-label" for="prioridadid"><strong>PrioridadId:</strong></label>
-						<InputText id="prioridadid" class="form-control" @bind-Value="ticket.Prioridad"></InputText>
+						@*Prioridad*@
+						<label class="form-label" for="prioridadid"><strong>Prioridad:</strong></label>
+						<InputText id="prioridadid" class="form-control" @bind-Value="ticket.Prioridad" placeholder="Ingrese la prioridad"></InputText>
 						<ValidationMessage For="@(() => ticket.Prioridad)"></ValidationMessage>
 					</div>
 				</div>
@@ -81,28 +81,14 @@
 				<div class="mb-3"></div>
 			</div>
 
+
 			@*TicketsDetalles*@
 			@*Header*@
 			<div class="card card-header">
-				<h3>TicketsDetalle</h3>
+				<h3><strong>TicketsDetalle</strong></h3>
 			</div>
 			@*Body*@
 			<div class="card-body border border-1">
-				@*Id*@
-				<div class="mb-3">
-					<div class="col-4">
-						<label class="form-label" for="id"><strong>Id</strong></label>
-						<InputNumber id="id" class="form-control" @bind-Value="ticketsDetalle.Id"></InputNumber>
-					</div>
-				</div>
-				@*TicketId*@
-				<div class="mb-3">
-					<div class="col-4">
-						<label class="form-label" for="ticketid"><strong>Ticket Id:</strong></label>
-						<InputNumber id="ticketid" class="form-control" @bind-Value="ticketsDetalle.TicketId"></InputNumber>
-						<ValidationMessage For="@(()=> ticketsDetalle.TicketId)"></ValidationMessage>
-					</div>
-				</div>
 				@*Emisor*@
 				<div class="mb-3">
 					<div class="col-4">
@@ -119,7 +105,39 @@
 						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
 					</div>
 				</div>
+				@*Boton*@
+				<div class="mb-3">
+					<div class="col-4">
+						<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle"/> Agregar</button>
+					</div>
+				</div>
 			</div>
+
+
+			@if (primeraGuardada)
+			{
+				@*Table Detalles*@
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr> 
+							<th>TicketId</th>
+							<th>Emisor</th>
+							<th>Mensaje</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var detalle in detalles)
+						{
+							<tr>
+								<td>@detalle.TicketId</td>
+								<td>@detalle.Emisor</td>
+								<td>@detalle.Mensaje</td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle.Id)"><i class="bi bi-trash3-fill" /></button></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
 
 			@*Footer*@
 			<div class="card-footer d-flex justify-content-center">
@@ -139,7 +157,9 @@
 @code {
 	public Tickets ticket { get; set; } = new Tickets();
 	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
+	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
+	public bool primeraGuardada { get; set; } = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -148,39 +168,73 @@
 
 	public async Task Crear()
 	{
+		if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
+		{
+			ticket.TicketsDetalle.Add(ticketsDetalle);
+		}
 		var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
 		if (response.IsSuccessStatusCode)
 		{
-			mensaje = "Se guardo";
+			var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
+			ticketsDetalle.TicketId = detalle.TicketId;
+			ticket.TicketId = detalle.TicketId;
+			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			Filtrado(detalles);
+			primeraGuardada = true;
+			mensaje = "Se guardo el ticket";
 		}
 		else
-			mensaje = "No se guardo";
+		{
+			mensaje = "No se guardo el ticket";
+		}
 	}
 
-	public void LimpiarPantalla()
+	public async Task AgregarDetalle()
 	{
-		ticket = new Tickets();
-		mensaje = string.Empty;
+		Console.WriteLine(ticketsDetalle.TicketId);
+		if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
+		{
+			var detalleResponse = await httpClient.PostAsJsonAsync("api/TicketsDetalles", ticketsDetalle);
+			if (detalleResponse.IsSuccessStatusCode)
+			{
+				ticket.TicketsDetalle.Add(ticketsDetalle);
+				var detalle = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+				Filtrado(detalle);
+			}
+			else
+			{
+				mensaje = "Error al guardar el detalle";
+			}
+		}
+		else
+		{
+			mensaje = "No deben haber campos vacíos";
+		}
 	}
 
-	public async Task ActualizarClienteId(string valor)
+
+	public async Task EliminarDetalle(int id)
 	{
-		// if (valor != null)
-		// {
-		// 	var buscar = await clientesService.BuscarCliente(valor);//Busco el cliente
-		// 	if (buscar != null)
-		// 		ticket.ClienteId = buscar.ClienteId;
-		// }
+		var response = await httpClient.DeleteAsync($"api/TicketsDetalles/{id}");
+		if (response.IsSuccessStatusCode)
+		{
+			//var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
+			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			Filtrado(detalles);
+		}
 	}
 
-	public async Task ActualizarPrioridadId(string valor)
+	public async Task Filtrado(List<TicketsDetalles> detalleList)
 	{
-		// if (valor != null)
-		// {
-		// 	var buscar = await prioridadesService.BuscarDescripcion(valor);//Busco la descripcion
-		// 	if (buscar != null)
-		// 		ticket.PriorityId = buscar.PriorityId;
-		// }
+		List<TicketsDetalles> filtro = new List<TicketsDetalles>();
+		foreach(var detalle in detalleList)
+		{
+			if (detalle.TicketId == ticketsDetalle.TicketId)
+				filtro.Add(detalle);
+		}
+
+		if (filtro.Count != 0)
+			detalles = filtro;
 	}
 
 	void VolverAInicio()
