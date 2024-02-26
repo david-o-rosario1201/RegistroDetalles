@@ -16,7 +16,6 @@
 			</div>
 			@*Cuerpo*@
 			<div class="card-body">
-				<div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4"></div>
 				<div class="mb-3">
 					<div class="col-4">
 						@*Ticket ID*@
@@ -82,6 +81,64 @@
 				</div>
 				<div class="mb-3"></div>
 			</div>
+
+			@*TicketsDetalles*@
+			@*Header*@
+			<div class="card card-header">
+				<h3><strong>TicketsDetalle</strong></h3>
+			</div>
+			@*Body*@
+			<div class="card-body border border-1">
+				@*Emisor*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="emisor"><strong>Emisor:</strong></label>
+						<InputText id="emisor" class="form-control" @bind-Value="ticketsDetalle.Emisor" placeholder="Ingrese su nombre"></InputText>
+						<ValidationMessage For="@(()=> ticketsDetalle.Emisor)"></ValidationMessage>
+					</div>
+				</div>
+				@*Mensaje*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="mensaje"><strong>Mensaje:</strong></label>
+						<InputTextArea id="mensaje" class="form-control" @bind-Value="ticketsDetalle.Mensaje" placeholder="Ingrese un mensaje"></InputTextArea>
+						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
+					</div>
+				</div>
+				@*Boton*@
+				<div class="mb-3">
+					<div class="col-4">
+						<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle" /> Agregar</button>
+					</div>
+				</div>
+			</div>
+
+
+			@if (detalles.Count > 0)
+			{
+				@*Table Detalles*@
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>TicketId</th>
+							<th>Emisor</th>
+							<th>Mensaje</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var detalle in detalles)
+						{
+							<tr>
+								<td>@detalle.TicketId</td>
+								<td>@detalle.Emisor</td>
+								<td>@detalle.Mensaje</td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle.Id)"><i class="bi bi-trash3-fill" /></button></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+
 			@*Boton*@
 			<div class="card-footer d-flex justify-content-center">
 				<div class="px-2">
@@ -101,6 +158,8 @@
 	[Parameter]
 	public int ticketId { get; set; }
 	public Tickets ticket { get; set; } = new Tickets();
+	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
+	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
@@ -110,6 +169,9 @@
 		if (ticketId > 0)
 		{
 			ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
+			ticketsDetalle.TicketId = ticket.TicketId;
+			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			Filtrado(detalles);
 		}
 	}
 
@@ -122,6 +184,50 @@
 		}
 		else
 			mensaje = "El ticket no se pudo modificar con éxito";
+	}
+
+	public async Task AgregarDetalle()
+	{
+		Console.WriteLine(ticketsDetalle.TicketId);
+		if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
+		{
+			var detalleResponse = await httpClient.PostAsJsonAsync("api/TicketsDetalles", ticketsDetalle);
+			if (detalleResponse.IsSuccessStatusCode)
+			{
+				ticket.TicketsDetalle.Add(ticketsDetalle);
+				var detalle = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+				Filtrado(detalle);
+			}
+			else
+			{
+				mensaje = "Error al guardar el detalle";
+			}
+		}
+		else
+			mensaje = "No deben haber campos vacíos";
+	}
+
+	public async Task Filtrado(List<TicketsDetalles> detalleList)
+	{
+		List<TicketsDetalles> filtro = new List<TicketsDetalles>();
+		foreach (var detalle in detalleList)
+		{
+			if (detalle.TicketId == ticketId)
+				filtro.Add(detalle);
+		}
+
+		if (filtro.Count != 0)
+			detalles = filtro;
+	}
+	public async Task EliminarDetalle(int id)
+	{
+		var response = await httpClient.DeleteAsync($"api/TicketsDetalles/{id}");
+		if (response.IsSuccessStatusCode)
+		{
+			//var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
+			detalles =  await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			Filtrado(detalles);
+		}
 	}
 
 	void IrAPaginaDestino()
