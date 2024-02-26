@@ -11,8 +11,8 @@ using RegistroDetalles.Api.DAL;
 namespace RegistroDetalles.Api.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240225225232_Detalles")]
-    partial class Detalles
+    [Migration("20240226203359_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,8 +30,9 @@ namespace RegistroDetalles.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Cliente")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
@@ -40,11 +41,13 @@ namespace RegistroDetalles.Api.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PriorityId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Prioridad")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("SistemaId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Sistema")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SolicitadoPor")
                         .IsRequired()
@@ -74,7 +77,23 @@ namespace RegistroDetalles.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TicketId");
+
                     b.ToTable("TicketsDetalles");
+                });
+
+            modelBuilder.Entity("Library.Models.TicketsDetalles", b =>
+                {
+                    b.HasOne("Library.Models.Tickets", null)
+                        .WithMany("TicketsDetalle")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Library.Models.Tickets", b =>
+                {
+                    b.Navigation("TicketsDetalle");
                 });
 #pragma warning restore 612, 618
         }

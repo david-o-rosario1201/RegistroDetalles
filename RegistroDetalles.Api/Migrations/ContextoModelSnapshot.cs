@@ -72,12 +72,9 @@ namespace RegistroDetalles.Api.Migrations
                     b.Property<int>("TicketId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("Tickets")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Tickets");
+                    b.HasIndex("TicketId");
 
                     b.ToTable("TicketsDetalles");
                 });
@@ -86,7 +83,9 @@ namespace RegistroDetalles.Api.Migrations
                 {
                     b.HasOne("Library.Models.Tickets", null)
                         .WithMany("TicketsDetalle")
-                        .HasForeignKey("Tickets");
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Library.Models.Tickets", b =>
