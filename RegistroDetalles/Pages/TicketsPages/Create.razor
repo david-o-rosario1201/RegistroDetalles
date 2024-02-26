@@ -1,6 +1,7 @@
 ﻿@page "/CreateTickets"
 @* @rendermode InteractiveServer
 @attribute [StreamRendering] *@
+@inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
 <PageTitle>Crear Nuevo Ticket</PageTitle>
@@ -79,6 +80,47 @@
 				</div>
 				<div class="mb-3"></div>
 			</div>
+
+			@*TicketsDetalles*@
+			@*Header*@
+			<div class="card card-header">
+				<h3>TicketsDetalle</h3>
+			</div>
+			@*Body*@
+			<div class="card-body border border-1">
+				@*Id*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="id"><strong>Id</strong></label>
+						<InputNumber id="id" class="form-control" @bind-Value="ticketsDetalle.Id"></InputNumber>
+					</div>
+				</div>
+				@*TicketId*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="ticketid"><strong>Ticket Id:</strong></label>
+						<InputNumber id="ticketid" class="form-control" @bind-Value="ticketsDetalle.TicketId"></InputNumber>
+						<ValidationMessage For="@(()=> ticketsDetalle.TicketId)"></ValidationMessage>
+					</div>
+				</div>
+				@*Emisor*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="emisor"><strong>Emisor:</strong></label>
+						<InputText id="emisor" class="form-control" @bind-Value="ticketsDetalle.Emisor" placeholder="Ingrese su nombre"></InputText>
+						<ValidationMessage For="@(()=> ticketsDetalle.Emisor)"></ValidationMessage>
+					</div>
+				</div>
+				@*Mensaje*@
+				<div class="mb-3">
+					<div class="col-4">
+						<label class="form-label" for="mensaje"><strong>Mensaje:</strong></label>
+						<InputTextArea id="mensaje" class="form-control" @bind-Value="ticketsDetalle.Mensaje" placeholder="Ingrese un mensaje"></InputTextArea>
+						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
+					</div>
+				</div>
+			</div>
+
 			@*Footer*@
 			<div class="card-footer d-flex justify-content-center">
 				<div class="px-2">
@@ -96,6 +138,7 @@
 
 @code {
 	public Tickets ticket { get; set; } = new Tickets();
+	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
 	public string mensaje { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
@@ -105,7 +148,13 @@
 
 	public async Task Crear()
 	{
-		
+		var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+		if (response.IsSuccessStatusCode)
+		{
+			mensaje = "Se guardo";
+		}
+		else
+			mensaje = "No se guardo";
 	}
 
 	public void LimpiarPantalla()
