@@ -93,7 +93,7 @@
 				<div class="mb-3">
 					<div class="col-4">
 						<label class="form-label" for="emisor"><strong>Emisor:</strong></label>
-						<InputText id="emisor" class="form-control" @bind-Value="ticketsDetalle.Emisor" placeholder="Ingrese su nombre"></InputText>
+						<InputText id="emisor" class="form-control" @bind-Value="transmitter" placeholder="Ingrese su nombre"></InputText>
 						<ValidationMessage For="@(()=> ticketsDetalle.Emisor)"></ValidationMessage>
 					</div>
 				</div>
@@ -101,7 +101,7 @@
 				<div class="mb-3">
 					<div class="col-4">
 						<label class="form-label" for="mensaje"><strong>Mensaje:</strong></label>
-						<InputTextArea id="mensaje" class="form-control" @bind-Value="ticketsDetalle.Mensaje" placeholder="Ingrese un mensaje"></InputTextArea>
+						<InputTextArea id="mensaje" class="form-control" @bind-Value="message" placeholder="Ingrese un mensaje"></InputTextArea>
 						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
 					</div>
 				</div>
@@ -152,6 +152,8 @@
 	</div>
 	@*Mensaje*@
 	@mensaje
+	@mensaje1
+	@mensaje2
 </EditForm>
 
 @code {
@@ -161,6 +163,10 @@
 	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
 	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
+	public string mensaje1 { get; set; } = string.Empty;
+	public string mensaje2 { get; set; } = string.Empty;
+	public string message { get; set; } = string.Empty;
+	public string transmitter { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -169,9 +175,17 @@
 		if (ticketId > 0)
 		{
 			ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
-			ticketsDetalle.TicketId = ticket.TicketId;
+
+			foreach(var details in ticket.TicketsDetalle)
+			{
+				detalles.Add(details);
+			}
+
+			ticket.TicketsDetalle.Clear();
+
+			/*ticketsDetalle.TicketId = ticket.TicketId;
 			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			Filtrado(detalles);
+			Filtrado(detalles);*/
 		}
 	}
 
@@ -188,15 +202,24 @@
 
 	public async Task AgregarDetalle()
 	{
-		Console.WriteLine(ticketsDetalle.TicketId);
-		if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
+		var nuevoDetalle = new TicketsDetalles { TicketId = ticketsDetalle.TicketId, Emisor = transmitter, Mensaje = message };
+
+		if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
 		{
-			var detalleResponse = await httpClient.PostAsJsonAsync("api/TicketsDetalles", ticketsDetalle);
-			if (detalleResponse.IsSuccessStatusCode)
+			// ticket.TicketsDetalle.Add(nuevoDetalle);
+
+			// // Enviar solo el último detalle del ticket al método del controlador
+			// var lastDetail = ticket.TicketsDetalle.LastOrDefault();
+			// ticket.TicketsDetalle.Clear();
+			ticket.TicketsDetalle.Add(nuevoDetalle);
+
+			var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+			if (response.IsSuccessStatusCode)
 			{
-				ticket.TicketsDetalle.Add(ticketsDetalle);
-				var detalle = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-				Filtrado(detalle);
+				detalles.Add(nuevoDetalle);
+				ticket.TicketsDetalle.Clear();
+				StateHasChanged();
+				mensaje = "Se guardó el detalle";
 			}
 			else
 			{
@@ -204,7 +227,18 @@
 			}
 		}
 		else
+		{
 			mensaje = "No deben haber campos vacíos";
+		}
+		LimpiarPantalla();
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		message = string.Empty;
+		transmitter = string.Empty;
+		Task.Delay(2000);
+		mensaje = string.Empty;
 	}
 
 	public async Task Filtrado(List<TicketsDetalles> detalleList)
@@ -221,14 +255,29 @@
 	}
 	public async Task EliminarDetalle(int id)
 	{
-		var response = await httpClient.DeleteAsync($"api/TicketsDetalles/{id}");
+		var response = await httpClient.DeleteAsync($"api/Tickets/{ticket.TicketId}/Details/{id}");
+		//"api/Tickets/{ticketId}/Details/{detailId}"
+		//var response = await httpClient.DeleteAsync($"api/Tickets/{ticketId}");
 		if (response.IsSuccessStatusCode)
 		{
-			//var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
-			detalles =  await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			Filtrado(detalles);
+			// //var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
+			// detalles =  await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			// Filtrado(detalles);
+			var detalle = detalles.FirstOrDefault(t => t.Id == id);
+			detalles.Remove(detalle);
+			StateHasChanged();
 		}
+		else
+			mensaje = "No Entro";
+
+		mensaje1 = $"TicketId: {ticket.TicketId}";
+		mensaje2 = $"DetalleId: {id}";
 	}
+
+	// public async Task<bool> Validar()
+	// {
+		
+	// }
 
 	void IrAPaginaDestino()
 	{
