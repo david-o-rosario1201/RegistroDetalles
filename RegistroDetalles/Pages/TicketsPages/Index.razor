@@ -166,20 +166,14 @@
 		}
 
 		List<Tickets> filtradoList1 = new List<Tickets>();
+		filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
 
 		switch (filtro)
 		{
 			case "id":
 				if (int.TryParse(valorFiltro, out int id))
 				{
-					var valor = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
-					if (valor != null)
-					{
-						ticket = valor;
-						mensaje = "Se encontraron los resultados";
-					}
-					else
-						mensaje = "No se encontraron los resultados";
+					Filtrar(1,filtradoList1, valorFiltro);
 				}
 				else
 				{
@@ -189,45 +183,53 @@
 				break;
 
 			case "solicitado por":
-				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
-				Filtrar(2, filtradoList1, valorFiltro);
+				Filtrar(2,filtradoList1, valorFiltro);
 				break;
 
 			case "asunto":
-				filtradoList1 = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
-				Filtrar(2, filtradoList1, valorFiltro);
+				Filtrar(3,filtradoList1, valorFiltro);
 				break;
 		}
 	}
 
 	public async Task Restablecer()
 	{
-		// ticketsList = await ticketsService.Listar(a => a.SistemaId > 0);
-		// mensaje = "Lo datos fueron restablecidos";
+		ticketsList = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+		mensaje = "Lo datos fueron restablecidos";
 	}
 
-	public async Task Filtrar(int num, List<Tickets> valor, string dato)
+	public async Task Filtrar(int pos, List<Tickets> filtrados, string dato)
 	{
 		List<Tickets> filtradoList2 = new List<Tickets>();
-		if(num == 1)
+
+		foreach (var filtrado in filtrados)
 		{
-			foreach (var filtrado in valor)
+			if (pos == 1)
+			{
+				if (filtrado.TicketId == int.Parse(dato))
+					filtradoList2.Add(filtrado);
+			}
+			else if (pos == 2)
 			{
 				if (filtrado.SolicitadoPor == dato)
 					filtradoList2.Add(filtrado);
 			}
-		}
-		else
-		{
-			foreach (var filtrado in valor)
+			else
 			{
 				if (filtrado.Asunto == dato)
 					filtradoList2.Add(filtrado);
 			}
+			
 		}
+		
 
 		if(filtradoList2.Count != 0)
 			DatosFiltrados(filtradoList2);
+		else
+		{
+			mensaje = "No se encontraron resultados";
+			await Task.Delay(3000);
+		}
 	}
 
 	public async Task DatosFiltrados(List<Tickets> valor)
