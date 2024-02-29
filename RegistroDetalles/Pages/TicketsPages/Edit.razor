@@ -152,8 +152,6 @@
 	</div>
 	@*Mensaje*@
 	@mensaje
-	@mensaje1
-	@mensaje2
 </EditForm>
 
 @code {
@@ -163,10 +161,11 @@
 	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
 	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
-	public string mensaje1 { get; set; } = string.Empty;
-	public string mensaje2 { get; set; } = string.Empty;
 	public string message { get; set; } = string.Empty;
 	public string transmitter { get; set; } = string.Empty;
+	public string asunto { get; set; } = string.Empty;
+	public string solicitadoPor { get; set; } = string.Empty;
+	public string descripcion { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -175,6 +174,9 @@
 		if (ticketId > 0)
 		{
 			ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticketId}");
+			asunto = ticket.Asunto;
+			solicitadoPor = ticket.SolicitadoPor;
+			descripcion = ticket.Descripcion;
 
 			foreach(var details in ticket.TicketsDetalle)
 			{
@@ -182,22 +184,30 @@
 			}
 
 			ticket.TicketsDetalle.Clear();
-
-			/*ticketsDetalle.TicketId = ticket.TicketId;
-			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			Filtrado(detalles);*/
 		}
 	}
 
 	public async Task Modificar()
 	{
-		var response = await httpClient.PutAsJsonAsync($"api/Tickets/{ticket.TicketId}", ticket);
-		if (response.IsSuccessStatusCode)
+		if(!await ValidarTicket())
 		{
-			mensaje = "El ticket se modificó con éxito";
+			ticket.Asunto = asunto;
+			ticket.Descripcion = descripcion;
+			ticket.SolicitadoPor = solicitadoPor;
+			await Task.Delay(2000);
+			StateHasChanged();
+			return;
 		}
 		else
-			mensaje = "El ticket no se pudo modificar con éxito";
+		{
+			var response = await httpClient.PutAsJsonAsync($"api/Tickets/{ticket.TicketId}", ticket);
+			if (response.IsSuccessStatusCode)
+			{
+				mensaje = "El ticket se modificó con éxito";
+			}
+			else
+				mensaje = "El ticket no se pudo modificar con éxito";
+		}
 	}
 
 	public async Task AgregarDetalle()
@@ -206,24 +216,26 @@
 
 		if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
 		{
-			// ticket.TicketsDetalle.Add(nuevoDetalle);
-
-			// // Enviar solo el último detalle del ticket al método del controlador
-			// var lastDetail = ticket.TicketsDetalle.LastOrDefault();
-			// ticket.TicketsDetalle.Clear();
-			ticket.TicketsDetalle.Add(nuevoDetalle);
-
-			var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
-			if (response.IsSuccessStatusCode)
+			if(!await ValidarDetalle())
 			{
-				detalles.Add(nuevoDetalle);
-				ticket.TicketsDetalle.Clear();
-				StateHasChanged();
-				mensaje = "Se guardó el detalle";
+				return;
 			}
 			else
 			{
-				mensaje = "Error al guardar el detalle";
+				ticket.TicketsDetalle.Add(nuevoDetalle);
+
+				var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+				if (response.IsSuccessStatusCode)
+				{
+					detalles.Add(nuevoDetalle);
+					ticket.TicketsDetalle.Clear();
+					StateHasChanged();
+					mensaje = "Se guardó el detalle";
+				}
+				else
+				{
+					mensaje = "Error al guardar el detalle";
+				}
 			}
 		}
 		else
@@ -231,6 +243,53 @@
 			mensaje = "No deben haber campos vacíos";
 		}
 		LimpiarPantalla();
+	}
+
+	public async Task<bool> ValidarTicket()
+	{
+		var tickets = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+		var asuntos = tickets.Where(t => t.Asunto.Equals(ticket.Asunto));
+		var solicitados = tickets.Where(t => t.SolicitadoPor.Equals(ticket.SolicitadoPor));
+		var descripciones = tickets.Where(t => t.Descripcion.Equals(ticket.Descripcion));
+
+		if (asuntos.Any() && ticket.Asunto != asunto)
+		{
+			mensaje = "Ya existe un ticket con este asunto";
+			return false;
+		}
+		if (solicitados.Any() && ticket.SolicitadoPor != solicitadoPor)
+		{
+			mensaje = "Ya existe un ticket con este solicitado por";
+			return false;
+		}
+		if (descripciones.Any() && ticket.Descripcion != descripcion)
+		{
+			mensaje = "Ya existe un ticket con esta descripción";
+			return false;
+		}
+
+		return true;
+	}
+
+	public async Task<bool> ValidarDetalle()
+	{
+		var tickets = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
+
+		foreach (var ticket in tickets.TicketsDetalle)
+		{
+			if (ticket.Mensaje == message)
+			{
+				mensaje = "Ya existe un detalle con este mensaje";
+				return false;
+			}
+			if (ticket.Emisor == transmitter)
+			{
+				mensaje = "Ya existe un detalle con este emisor";
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public async Task LimpiarPantalla()
@@ -269,9 +328,6 @@
 		}
 		else
 			mensaje = "No Entro";
-
-		mensaje1 = $"TicketId: {ticket.TicketId}";
-		mensaje2 = $"DetalleId: {id}";
 	}
 
 	// public async Task<bool> Validar()

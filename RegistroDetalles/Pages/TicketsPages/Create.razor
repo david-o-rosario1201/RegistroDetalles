@@ -152,7 +152,6 @@
 	</div>
 	@*Mensaje*@
 	@mensaje
-	@resultado
 </EditForm>
 
 @code {
@@ -160,7 +159,6 @@
 	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
 	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
-	public string resultado { get; set; } = string.Empty;
 	public string transmitter { get; set; } = string.Empty;
 	public string message { get; set; } = string.Empty;
 	public string ultimo { get; set; } = string.Empty;
@@ -172,50 +170,30 @@
 
 	public async Task Crear()
 	{
-		// if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
-		// {
-		// 	ticket.TicketsDetalle.Add(ticketsDetalle);
-		// }
-		// var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
-		// if (response.IsSuccessStatusCode)
-		// {
-		// 	var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
-		// 	ticketsDetalle.TicketId = detalle.TicketId;
-		// 	ticket.TicketId = detalle.TicketId;
-		// 	//detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-		// 	//Filtrado(detalles);
-		// 	mensaje = "Se guardo el ticket";
-		// }
-		// else
-		// {
-		// 	mensaje = "No se guardo el ticket";
-		// }
-
-
-		var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
-		if (response.IsSuccessStatusCode)
+		if(!await ValidarTicket())
 		{
-			var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
-			//Esto es para que me guarde el mismo ticketId
-			ticketsDetalle.TicketId = detalle.TicketId;
-			ticket.TicketId = detalle.TicketId;
-
-			AgregarDetalle();
-
-			// if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
-			// {
-			// 	ticket.TicketsDetalle.Add(nuevoDetalle);
-			// 	await httpClient.PostAsJsonAsync("api/Tickets", ticket);
-			// 	ultimo = nuevoDetalle.Emisor;
-			// }
-			// // detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			// // Filtrado(detalles);
-			mensaje = "Se guardo el ticket";
+			return;
 		}
 		else
 		{
-			mensaje = "No se guardo el ticket";
+			var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+			if (response.IsSuccessStatusCode)
+			{
+				var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
+				//Esto es para que me guarde el mismo ticketId
+				ticketsDetalle.TicketId = detalle.TicketId;
+				ticket.TicketId = detalle.TicketId;
+
+				AgregarDetalle();
+
+				mensaje = "Se guardo el ticket";
+			}
+			else
+			{
+				mensaje = "No se guardo el ticket";
+			}
 		}
+
 		LimpiarPantalla();
 	}
 
@@ -225,30 +203,31 @@
 
 		if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
 		{
-			// ticket.TicketsDetalle.Add(nuevoDetalle);
-
-			// // Enviar solo el último detalle del ticket al método del controlador
-			// var lastDetail = ticket.TicketsDetalle.LastOrDefault();
-			// ticket.TicketsDetalle.Clear();
-			ticket.TicketsDetalle.Add(nuevoDetalle);
-
-			var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
-			if (response.IsSuccessStatusCode)
+			if(!await ValidarDetalle())
 			{
-
-				var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
-
-				nuevoDetalle.Id = detalle.TicketsDetalle.Last().Id;
-				resultado = "nuevo = " + nuevoDetalle.Id;
-
-				detalles.Add(nuevoDetalle);
-				ticket.TicketsDetalle.Clear();
-				StateHasChanged();
-				mensaje = "Se guardó el detalle";
+				return;
 			}
 			else
 			{
-				mensaje = "Error al guardar el detalle";
+				ticket.TicketsDetalle.Add(nuevoDetalle);
+
+				var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+				if (response.IsSuccessStatusCode)
+				{
+
+					var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
+
+					nuevoDetalle.Id = detalle.TicketsDetalle.Last().Id;
+
+					detalles.Add(nuevoDetalle);
+					ticket.TicketsDetalle.Clear();
+					StateHasChanged();
+					mensaje = "Se guardó el detalle";
+				}
+				else
+				{
+					mensaje = "Error al guardar el detalle";
+				}
 			}
 		}
 		else
@@ -256,6 +235,53 @@
 			mensaje = "No deben haber campos vacíos";
 		}
 		LimpiarPantalla();
+	}
+
+	public async Task<bool> ValidarTicket()
+	{
+		var tickets = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+		var asunto = tickets.Where(t => t.Asunto.Equals(ticket.Asunto));
+		var solicitadoPor = tickets.Where(t => t.SolicitadoPor.Equals(ticket.SolicitadoPor));
+		var descripcion = tickets.Where(t => t.Descripcion.Equals(ticket.Descripcion));
+
+		if (asunto.Any())
+		{
+			mensaje = "Ya existe un ticket con este asunto";
+			return false;
+		}
+		if (solicitadoPor.Any())
+		{
+			mensaje = "Ya existe un ticket con este solicitado por";
+			return false;
+		}
+		if (descripcion.Any())
+		{
+			mensaje = "Ya existe un ticket con esta descripción";
+			return false;
+		}
+
+		return true;
+	}
+
+	public async Task<bool> ValidarDetalle()
+	{
+		var tickets = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
+
+		foreach(var ticket in tickets.TicketsDetalle)
+		{
+			if(ticket.Mensaje == message)
+			{
+				mensaje = "Ya existe un detalle con este mensaje";
+				return false;
+			}
+			if(ticket.Emisor == transmitter)
+			{
+				mensaje = "Ya existe un detalle con este emisor";
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 

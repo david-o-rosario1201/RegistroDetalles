@@ -40,6 +40,38 @@
 				<p class="mb-0">Asunto: @ticket.Asunto</p>
 			</div>
 		</div>
+
+		@*TicketsDetalles*@
+		@*Header*@
+		<div class="card card-header">
+			<h3><strong>Tickets Detalles</strong></h3>
+		</div>
+
+		@*Detalles*@
+		@if (ticket.TicketsDetalle.Count > 0)
+		{
+			@*Table Detalles*@
+			<table class="table table-bordered miTabla">
+				<thead>
+					<tr>
+						<th>TicketId</th>
+						<th>Emisor</th>
+						<th>Mensaje</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var detalle in ticket.TicketsDetalle)
+					{
+						<tr>
+							<td>@detalle.TicketId</td>
+							<td>@detalle.Emisor</td>
+							<td>@detalle.Mensaje</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+
 		@*Footer*@
 		<div class="card-footer d-flex justify-content-center">
 			<button type="button" class="btn btn-outline-primary" @onclick="VolverAInicio"><i class="bi bi-box-arrow-left" /> Volver</button>
