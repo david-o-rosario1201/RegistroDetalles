@@ -315,13 +315,9 @@
 	public async Task EliminarDetalle(int id)
 	{
 		var response = await httpClient.DeleteAsync($"api/Tickets/{ticket.TicketId}/Details/{id}");
-		//"api/Tickets/{ticketId}/Details/{detailId}"
-		//var response = await httpClient.DeleteAsync($"api/Tickets/{ticketId}");
+		
 		if (response.IsSuccessStatusCode)
 		{
-			// //var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
-			// detalles =  await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			// Filtrado(detalles);
 			var detalle = detalles.FirstOrDefault(t => t.Id == id);
 			detalles.Remove(detalle);
 			StateHasChanged();
@@ -329,11 +325,6 @@
 		else
 			mensaje = "No Entro";
 	}
-
-	// public async Task<bool> Validar()
-	// {
-		
-	// }
 
 	void IrAPaginaDestino()
 	{
