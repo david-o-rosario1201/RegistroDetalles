@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Library.Models;
 using RegistroDetalles.Api.DAL;
+using System.Net.Sockets;
 
 namespace RegistroDetalles.Api.Controllers
 {
@@ -91,8 +92,35 @@ namespace RegistroDetalles.Api.Controllers
             return Ok(tickets);
         }
 
-        // DELETE: api/Tickets/5
-        [HttpDelete("{id}")]
+		//// POST: api/Tickets/PostLastTicketDetail
+		//[HttpPost("PostLastTicketDetail")]
+		//public async Task<ActionResult<Tickets>> PostLastTicketDetail(Tickets tickets)
+		//{
+		//	var existingTicket = await _context.Tickets.FindAsync(tickets.TicketId);
+
+		//	if (existingTicket == null)
+		//	{
+		//		return NotFound();
+		//	}
+		//	else
+		//	{
+		//		var lastDetail = tickets.TicketsDetalle.LastOrDefault();
+
+		//		var newTicket = new Tickets
+		//		{
+		//			TicketId = existingTicket.TicketId,
+		//			TicketsDetalle = new List<TicketsDetalles> { lastDetail }
+		//		};
+
+		//		_context.Tickets.Add(newTicket);
+		//		await _context.SaveChangesAsync();
+
+		//		return Ok(newTicket);
+		//	}
+		//}
+
+		// DELETE: api/Tickets/5
+		[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTickets(int id)
         {
             var tickets = await _context.Tickets.FindAsync(id);
@@ -107,7 +135,70 @@ namespace RegistroDetalles.Api.Controllers
             return NoContent();
         }
 
-        private bool TicketsExists(int id)
+		[HttpDelete("{ticketId}/Details/{detailId}")]
+		public async Task<IActionResult> DeleteTicketDetail(int ticketId, int detailId)
+		{
+			var ticket = await _context.Tickets.FindAsync(ticketId);
+
+			if (ticket == null)
+			{
+				return NotFound(); // Ticket no encontrado
+			}
+
+			// Encuentra el detalle del ticket que coincide con el detailId proporcionado
+			var detalle = await _context.TicketsDetalles.FindAsync(detailId);
+
+			if (detalle == null)
+			{
+				return NotFound(); // Detalle no encontrado
+			}
+
+			// Remueve el detalle del ticket del contexto
+			_context.TicketsDetalles.Remove(detalle);
+
+			// Guarda los cambios en la base de datos
+			await _context.SaveChangesAsync();
+
+			return NoContent(); // Indica que la eliminación fue exitosa
+		}
+
+		//[HttpDelete("api/Tickets/{ticketId}/Details/{detailId}")]
+		//public async Task<IActionResult> DeleteTicketDetail(int ticketId, int ticketDetalleId)
+		//{
+		//	//var ticket = await _context.Tickets.Include(t => t.TicketsDetalle)
+		//	//								   .FirstOrDefaultAsync(t => t.TicketId == ticketId);
+
+		//	//if (ticket == null)
+		//	//{
+		//	//	return NotFound(); // Ticket no encontrado
+		//	//}
+
+		//	//var detail = ticket.TicketsDetalle.FirstOrDefault(d => d.Id == ticketDetalleId);
+		//	//if (detail == null)
+		//	//{
+		//	//	return NotFound(); // Detalle no encontrado en el ticket
+		//	//}
+
+		//	//_context.Tickets.Remove(ticket);
+
+		//	//await _context.SaveChangesAsync();   // Guardar los cambios en la base de datos
+
+		//	//return NoContent(); // Indica que la eliminación fue exitosa
+
+		//	var ticket = await _context.Tickets.FindAsync(ticketId);
+		//	if (ticket == null)
+		//	{
+		//		return NotFound(); // Ticket no encontrado
+		//	}
+
+		//	_context.Tickets.Remove(ticket);
+		//	await _context.SaveChangesAsync();
+
+		//	return NoContent(); // Indica que la eliminación fue exitosa
+		//}
+
+
+		private bool TicketsExists(int id)
         {
             return _context.Tickets.Any(e => e.TicketId == id);
         }
