@@ -93,7 +93,7 @@
 				<div class="mb-3">
 					<div class="col-4">
 						<label class="form-label" for="emisor"><strong>Emisor:</strong></label>
-						<InputText id="emisor" class="form-control" @bind-Value="ticketsDetalle.Emisor" placeholder="Ingrese su nombre"></InputText>
+						<InputText id="emisor" class="form-control" @bind-Value="transmitter" placeholder="Ingrese su nombre"></InputText>
 						<ValidationMessage For="@(()=> ticketsDetalle.Emisor)"></ValidationMessage>
 					</div>
 				</div>
@@ -101,7 +101,7 @@
 				<div class="mb-3">
 					<div class="col-4">
 						<label class="form-label" for="mensaje"><strong>Mensaje:</strong></label>
-						<InputTextArea id="mensaje" class="form-control" @bind-Value="ticketsDetalle.Mensaje" placeholder="Ingrese un mensaje"></InputTextArea>
+						<InputTextArea id="mensaje" class="form-control" @bind-Value="message" placeholder="Ingrese un mensaje"></InputTextArea>
 						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
 					</div>
 				</div>
@@ -114,7 +114,7 @@
 			</div>
 
 
-			@if (primeraGuardada)
+			@if (detalles.Count > 0)
 			{
 				@*Table Detalles*@
 				<table class="table table-bordered miTabla">
@@ -152,6 +152,7 @@
 	</div>
 	@*Mensaje*@
 	@mensaje
+	@resultado
 </EditForm>
 
 @code {
@@ -159,7 +160,10 @@
 	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
 	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
-	public bool primeraGuardada { get; set; } = false;
+	public string resultado { get; set; } = string.Empty;
+	public string transmitter { get; set; } = string.Empty;
+	public string message { get; set; } = string.Empty;
+	public string ultimo { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -168,38 +172,79 @@
 
 	public async Task Crear()
 	{
-		if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
-		{
-			ticket.TicketsDetalle.Add(ticketsDetalle);
-		}
+		// if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
+		// {
+		// 	ticket.TicketsDetalle.Add(ticketsDetalle);
+		// }
+		// var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+		// if (response.IsSuccessStatusCode)
+		// {
+		// 	var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
+		// 	ticketsDetalle.TicketId = detalle.TicketId;
+		// 	ticket.TicketId = detalle.TicketId;
+		// 	//detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+		// 	//Filtrado(detalles);
+		// 	mensaje = "Se guardo el ticket";
+		// }
+		// else
+		// {
+		// 	mensaje = "No se guardo el ticket";
+		// }
+
+
 		var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
 		if (response.IsSuccessStatusCode)
 		{
 			var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
+			//Esto es para que me guarde el mismo ticketId
 			ticketsDetalle.TicketId = detalle.TicketId;
 			ticket.TicketId = detalle.TicketId;
-			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			Filtrado(detalles);
-			primeraGuardada = true;
+
+			AgregarDetalle();
+
+			// if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
+			// {
+			// 	ticket.TicketsDetalle.Add(nuevoDetalle);
+			// 	await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+			// 	ultimo = nuevoDetalle.Emisor;
+			// }
+			// // detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			// // Filtrado(detalles);
 			mensaje = "Se guardo el ticket";
 		}
 		else
 		{
 			mensaje = "No se guardo el ticket";
 		}
+		LimpiarPantalla();
 	}
 
 	public async Task AgregarDetalle()
 	{
-		Console.WriteLine(ticketsDetalle.TicketId);
-		if (!string.IsNullOrEmpty(ticketsDetalle.Mensaje) && !string.IsNullOrEmpty(ticketsDetalle.Emisor))
+		var nuevoDetalle = new TicketsDetalles { TicketId = ticketsDetalle.TicketId, Emisor = transmitter, Mensaje = message };
+
+		if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
 		{
-			var detalleResponse = await httpClient.PostAsJsonAsync("api/TicketsDetalles", ticketsDetalle);
-			if (detalleResponse.IsSuccessStatusCode)
+			// ticket.TicketsDetalle.Add(nuevoDetalle);
+
+			// // Enviar solo el último detalle del ticket al método del controlador
+			// var lastDetail = ticket.TicketsDetalle.LastOrDefault();
+			// ticket.TicketsDetalle.Clear();
+			ticket.TicketsDetalle.Add(nuevoDetalle);
+
+			var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
+			if (response.IsSuccessStatusCode)
 			{
-				ticket.TicketsDetalle.Add(ticketsDetalle);
-				var detalle = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-				Filtrado(detalle);
+
+				var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
+
+				nuevoDetalle.Id = detalle.TicketsDetalle.Last().Id;
+				resultado = "nuevo = " + nuevoDetalle.Id;
+
+				detalles.Add(nuevoDetalle);
+				ticket.TicketsDetalle.Clear();
+				StateHasChanged();
+				mensaje = "Se guardó el detalle";
 			}
 			else
 			{
@@ -210,17 +255,24 @@
 		{
 			mensaje = "No deben haber campos vacíos";
 		}
+		LimpiarPantalla();
 	}
+
 
 
 	public async Task EliminarDetalle(int id)
 	{
-		var response = await httpClient.DeleteAsync($"api/TicketsDetalles/{id}");
+		var response = await httpClient.DeleteAsync($"api/Tickets/{ticket.TicketId}/Details/{id}");
+		//"api/Tickets/{ticketId}/Details/{detailId}"
+		//var response = await httpClient.DeleteAsync($"api/Tickets/{ticketId}");
 		if (response.IsSuccessStatusCode)
 		{
-			//var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
-			detalles = await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
-			Filtrado(detalles);
+			// //var detalle = await response.Content.ReadFromJsonAsync<TicketsDetalles>();
+			// detalles =  await httpClient.GetFromJsonAsync<List<TicketsDetalles>>("api/TicketsDetalles");
+			// Filtrado(detalles);
+			var detalle = detalles.FirstOrDefault(t => t.Id == id);
+			detalles.Remove(detalle);
+			StateHasChanged();
 		}
 	}
 
@@ -235,6 +287,14 @@
 
 		if (filtro.Count != 0)
 			detalles = filtro;
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		message = string.Empty;
+		transmitter = string.Empty;
+		Task.Delay(2000);
+		mensaje = string.Empty;
 	}
 
 	void VolverAInicio()
