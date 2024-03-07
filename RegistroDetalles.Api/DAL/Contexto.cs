@@ -11,5 +11,4 @@ public class Contexto : DbContext
     }
 
     public DbSet<Tickets> Tickets { get; set; }
-    public DbSet<TicketsDetalles> TicketsDetalles { get; set; }
 }
