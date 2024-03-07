@@ -21,8 +21,8 @@
 			@if (loading)
 			{
 				<div class="d-flex justify-content-center">
-					<div class="spinner-border text-info" role="status">
-						<span class="visually-hidden">Cargando...</span>
+					<div class="spinner-border text-info">
+						
 					</div>
 				</div>
 			}
@@ -147,21 +147,21 @@
 		if (desde > hasta)
 		{
 			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
-			await Task.Delay(3000);
-			return;
-		}
-
-		if (valorFiltro == null)
-		{
-			mensaje = "Debe ingresar un dato";
-			await Task.Delay(3000);
+			await LimpiarPantalla();
 			return;
 		}
 
 		if (filtro == null)
 		{
 			mensaje = "Debe elegir un método parar filtrar";
-			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		if (valorFiltro == null)
+		{
+			mensaje = "Debe ingresar un dato";
+			await LimpiarPantalla();
 			return;
 		}
 
@@ -190,6 +190,9 @@
 				Filtrar(3,filtradoList1, valorFiltro);
 				break;
 		}
+
+		StateHasChanged();
+		await LimpiarPantalla();
 	}
 
 	public async Task Restablecer()
@@ -219,11 +222,11 @@
 				if (filtrado.Asunto == dato)
 					filtradoList2.Add(filtrado);
 			}
-			
-		}
-		
 
-		if(filtradoList2.Count != 0)
+		}
+
+
+		if(filtradoList2.Count > 0)
 			DatosFiltrados(filtradoList2);
 		else
 		{
@@ -248,7 +251,7 @@
 		}
 		else
 		{
-			mensaje = "No se encontraron resultados";
+			mensaje = "No se encontraron resultados. Revise si el dato está entre la fecha indicada.";
 			await Task.Delay(3000);
 		}
 	}
@@ -256,6 +259,12 @@
 	void IrACrear()
 	{
 		NavigationManager.NavigateTo("/CreateTickets");
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
 	}
 
 	void IrADetalles(int id)
