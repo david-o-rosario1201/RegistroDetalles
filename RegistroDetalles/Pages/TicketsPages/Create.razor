@@ -1,6 +1,4 @@
 ﻿@page "/CreateTickets"
-@* @rendermode InteractiveServer
-@attribute [StreamRendering] *@
 @inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 
@@ -15,22 +13,18 @@
 			</div>
 			@*Cuerpo*@
 			<div class="card-body">
-				<div class="mb-3">
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Ticket ID*@
 						<label class="form-label" for="ticketId"><strong>TicketId:</strong></label>
 						<InputNumber id="ticketId" class="form-control" @bind-Value="ticket.TicketId" readonly></InputNumber>
 					</div>
-				</div>
-				<div class="mb-3">
 					<div class="col-4">
 						@*Fecha*@
 						<label class="form-label" for="fecha"><strong>Fecha:</strong></label>
 						<InputDate id="fecha" class="form-control" @bind-Value="ticket.Fecha"></InputDate>
 						<ValidationMessage For="@(() => ticket.Fecha)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="mb-3">
 					<div class="col-4">
 						@*Asunto*@
 						<label class="form-label" for="asunto"><strong>Asunto:</strong></label>
@@ -38,23 +32,20 @@
 						<ValidationMessage For="@(() => ticket.Asunto)"></ValidationMessage>
 					</div>
 				</div>
-				<div class="mb-3">
+				
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Solicitado Por*@
 						<label class="form-label" for="solicitado"><strong>SolicitadoPor:</strong></label>
 						<InputText id="solicitado" class="form-control" @bind-Value="ticket.SolicitadoPor" placeholder="Ingrese el nombre de quien solicita el ticket"></InputText>
 						<ValidationMessage For="@(() => ticket.SolicitadoPor)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="mb-3">
 					<div class="col-4">
 						@*Cliente*@
 						<label class="form-label" for="clienteid"><strong>Cliente:</strong></label>
 						<InputText id="cliente" class="form-control" @bind-Value="ticket.Cliente" placeholder="Ingrese el nombre del cliente"></InputText>
 						<ValidationMessage For="@(() => ticket.Cliente)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="mb-3">
 					<div class="col-4">
 						@*Sistema*@
 						<label class="form-label" for="sistemaid"><strong>Sistema:</strong></label>
@@ -62,15 +53,14 @@
 						<ValidationMessage For="@(() => ticket.Sistema)"></ValidationMessage>
 					</div>
 				</div>
-				<div class="mb-3">
+				
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Prioridad*@
 						<label class="form-label" for="prioridadid"><strong>Prioridad:</strong></label>
 						<InputText id="prioridadid" class="form-control" @bind-Value="ticket.Prioridad" placeholder="Ingrese la prioridad"></InputText>
 						<ValidationMessage For="@(() => ticket.Prioridad)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="mb-3">
 					<div class="col-4">
 						@*Descripción*@
 						<label class="form-label" for="descripcion"><strong>Descripci&oacute;n:</strong></label>
@@ -78,61 +68,52 @@
 						<ValidationMessage For="@(() => ticket.Descripcion)"></ValidationMessage>
 					</div>
 				</div>
-				<div class="mb-3"></div>
 			</div>
 
 
 			@*TicketsDetalles*@
 			@*Header*@
 			<div class="card card-header">
-				<h3><strong>TicketsDetalle</strong></h3>
+				<h3><strong>Detalles</strong></h3>
 			</div>
 			@*Body*@
 			<div class="card-body border border-1">
-				@*Emisor*@
-				<div class="mb-3">
+				<div class="row align-content-center">
+					@*Emisor*@
 					<div class="col-4">
 						<label class="form-label" for="emisor"><strong>Emisor:</strong></label>
 						<InputText id="emisor" class="form-control" @bind-Value="transmitter" placeholder="Ingrese su nombre"></InputText>
-						<ValidationMessage For="@(()=> ticketsDetalle.Emisor)"></ValidationMessage>
 					</div>
-				</div>
-				@*Mensaje*@
-				<div class="mb-3">
+					@*Mensaje*@
 					<div class="col-4">
 						<label class="form-label" for="mensaje"><strong>Mensaje:</strong></label>
 						<InputTextArea id="mensaje" class="form-control" @bind-Value="message" placeholder="Ingrese un mensaje"></InputTextArea>
-						<ValidationMessage For="@(()=> ticketsDetalle.Mensaje)"></ValidationMessage>
 					</div>
-				</div>
-				@*Boton*@
-				<div class="mb-3">
-					<div class="col-4">
-						<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle"/> Agregar</button>
+					@*Boton*@
+					<div class="col-4 d-flex align-items-end">
+						<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle" /> Agregar</button>
 					</div>
 				</div>
 			</div>
 
 
-			@if (detalles.Count > 0)
+			@if (ticket.TicketsDetalle.Count > 0)
 			{
 				@*Table Detalles*@
 				<table class="table table-bordered miTabla">
 					<thead>
 						<tr> 
-							<th>TicketId</th>
 							<th>Emisor</th>
 							<th>Mensaje</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var detalle in detalles)
+						@foreach (var detalle in ticket.TicketsDetalle)
 						{
 							<tr>
-								<td>@detalle.TicketId</td>
 								<td>@detalle.Emisor</td>
 								<td>@detalle.Mensaje</td>
-								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle.Id)"><i class="bi bi-trash3-fill" /></button></td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
 							</tr>
 						}
 					</tbody>
@@ -142,7 +123,7 @@
 			@*Footer*@
 			<div class="card-footer d-flex justify-content-center">
 				<div class="px-2">
-					<button type="button" class="btn btn-outline-primary" @onclick="VolverAInicio"><i class="bi bi-box-arrow-left" /> Volver</button>
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 				</div>
 				<button type="submit" class="btn btn-outline-success">
 					<i class="bi bi-floppy-fill" /> Crear
@@ -150,13 +131,12 @@
 			</div>
 		</div>
 	</div>
-	@*Mensaje*@
-	@mensaje
 </EditForm>
+@*Mensaje*@
+@mensaje
 
 @code {
 	public Tickets ticket { get; set; } = new Tickets();
-	public TicketsDetalles ticketsDetalle { get; set; } = new TicketsDetalles();
 	public List<TicketsDetalles> detalles = new List<TicketsDetalles>();
 	public string mensaje { get; set; } = string.Empty;
 	public string transmitter { get; set; } = string.Empty;
@@ -179,14 +159,10 @@
 			var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
 			if (response.IsSuccessStatusCode)
 			{
-				var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
-				//Esto es para que me guarde el mismo ticketId
-				ticketsDetalle.TicketId = detalle.TicketId;
-				ticket.TicketId = detalle.TicketId;
-
-				AgregarDetalle();
-
 				mensaje = "Se guardo el ticket";
+				StateHasChanged();
+				await Task.Delay(2000);
+				Volver();
 			}
 			else
 			{
@@ -199,9 +175,8 @@
 
 	public async Task AgregarDetalle()
 	{
-		var nuevoDetalle = new TicketsDetalles { TicketId = ticketsDetalle.TicketId, Emisor = transmitter, Mensaje = message };
 
-		if (!string.IsNullOrEmpty(nuevoDetalle.Mensaje) && !string.IsNullOrEmpty(nuevoDetalle.Emisor))
+		if (!string.IsNullOrEmpty(message) && !string.IsNullOrEmpty(transmitter))
 		{
 			if(!await ValidarDetalle())
 			{
@@ -209,32 +184,15 @@
 			}
 			else
 			{
+				var nuevoDetalle = new TicketsDetalles { Emisor = transmitter, Mensaje = message };
 				ticket.TicketsDetalle.Add(nuevoDetalle);
-
-				var response = await httpClient.PostAsJsonAsync("api/Tickets", ticket);
-				if (response.IsSuccessStatusCode)
-				{
-
-					var detalle = await response.Content.ReadFromJsonAsync<Tickets>();
-
-					nuevoDetalle.Id = detalle.TicketsDetalle.Last().Id;
-
-					detalles.Add(nuevoDetalle);
-					ticket.TicketsDetalle.Clear();
-					StateHasChanged();
-					mensaje = "Se guardó el detalle";
-				}
-				else
-				{
-					mensaje = "Error al guardar el detalle";
-				}
 			}
 		}
 		else
-		{
 			mensaje = "No deben haber campos vacíos";
-		}
-		LimpiarPantalla();
+
+		StateHasChanged();
+		await LimpiarPantalla();
 	}
 
 	public async Task<bool> ValidarTicket()
@@ -265,9 +223,8 @@
 
 	public async Task<bool> ValidarDetalle()
 	{
-		var tickets = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
 
-		foreach(var ticket in tickets.TicketsDetalle)
+		foreach(var ticket in ticket.TicketsDetalle)
 		{
 			if(ticket.Mensaje == message)
 			{
@@ -284,42 +241,20 @@
 		return true;
 	}
 
-
-
-	public async Task EliminarDetalle(int id)
+	public async Task EliminarDetalle(TicketsDetalles emisor)
 	{
-		var response = await httpClient.DeleteAsync($"api/Tickets/{ticket.TicketId}/Details/{id}");
-		
-		if (response.IsSuccessStatusCode)
-		{
-			var detalle = detalles.FirstOrDefault(t => t.Id == id);
-			detalles.Remove(detalle);
-			StateHasChanged();
-		}
-	}
-
-	public async Task Filtrado(List<TicketsDetalles> detalleList)
-	{
-		List<TicketsDetalles> filtro = new List<TicketsDetalles>();
-		foreach(var detalle in detalleList)
-		{
-			if (detalle.TicketId == ticketsDetalle.TicketId)
-				filtro.Add(detalle);
-		}
-
-		if (filtro.Count != 0)
-			detalles = filtro;
+		ticket.TicketsDetalle.Remove(emisor);
 	}
 
 	public async Task LimpiarPantalla()
 	{
 		message = string.Empty;
 		transmitter = string.Empty;
-		Task.Delay(2000);
+		await Task.Delay(2000);
 		mensaje = string.Empty;
 	}
 
-	void VolverAInicio()
+	void Volver()
 	{
 		NavigationManager.NavigateTo("/Tickets");
 	}
