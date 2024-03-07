@@ -54,7 +54,6 @@
 			<table class="table table-bordered miTabla">
 				<thead>
 					<tr>
-						<th>TicketId</th>
 						<th>Emisor</th>
 						<th>Mensaje</th>
 					</tr>
@@ -63,7 +62,6 @@
 					@foreach (var detalle in ticket.TicketsDetalle)
 					{
 						<tr>
-							<td>@detalle.TicketId</td>
 							<td>@detalle.Emisor</td>
 							<td>@detalle.Mensaje</td>
 						</tr>
