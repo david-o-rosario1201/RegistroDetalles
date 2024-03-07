@@ -10,7 +10,7 @@
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Detalle de Ticket</strong></h3>
+			<h3><strong>Ver Ticket</strong></h3>
 		</div>
 		@*Body*@
 		<div class="card-body">
@@ -19,7 +19,7 @@
 				<p class="mb-0">TicketId: @ticket.TicketId</p>
 			</div>
 			<div class="mb-1">
-				<p class="mb-0">Fecha: @ticket.Fecha</p>
+				<p class="mb-0">Fecha: @ticket.Fecha.ToShortDateString()</p>
 			</div>
 			<div class="mb-1">
 				<p class="mb-0">SolicitadoPor: @ticket.SolicitadoPor</p>
@@ -44,7 +44,7 @@
 		@*TicketsDetalles*@
 		@*Header*@
 		<div class="card card-header">
-			<h3><strong>Tickets Detalles</strong></h3>
+			<h3><strong>Detalles</strong></h3>
 		</div>
 
 		@*Detalles*@
