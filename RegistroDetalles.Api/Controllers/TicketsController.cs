@@ -138,28 +138,25 @@ namespace RegistroDetalles.Api.Controllers
 		[HttpDelete("{ticketId}/Details/{detailId}")]
 		public async Task<IActionResult> DeleteTicketDetail(int ticketId, int detailId)
 		{
-			var ticket = await _context.Tickets.FindAsync(ticketId);
+            var ticket = await _context.Tickets.Include(t => t.TicketsDetalle).FirstOrDefaultAsync(t => t.TicketId == ticketId);
 
 			if (ticket == null)
 			{
-				return NotFound(); // Ticket no encontrado
+				return NotFound(); 
 			}
 
-			// Encuentra el detalle del ticket que coincide con el detailId proporcionado
-			var detalle = await _context.TicketsDetalles.FindAsync(detailId);
+			var detalle = ticket.TicketsDetalle.FirstOrDefault(d => d.Id == detailId);
 
 			if (detalle == null)
 			{
-				return NotFound(); // Detalle no encontrado
+				return NotFound(); 
 			}
 
-			// Remueve el detalle del ticket del contexto
-			_context.TicketsDetalles.Remove(detalle);
+			ticket.TicketsDetalle.Remove(detalle);
 
-			// Guarda los cambios en la base de datos
 			await _context.SaveChangesAsync();
 
-			return NoContent(); // Indica que la eliminación fue exitosa
+			return NoContent(); 
 		}
 
 		//[HttpDelete("api/Tickets/{ticketId}/Details/{detailId}")]
